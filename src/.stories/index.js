@@ -119,11 +119,29 @@ class ListWrapper extends Component {
       onSortStart(this.refs.component);
     }
   };
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({oldIndex, newIndex, majorOverlap}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
 
-    this.setState({items: arrayMove(items, oldIndex, newIndex), isSorting: false});
+    if (majorOverlap) {
+      const array = items.slice(0);
+      let newElement = array[newIndex];
+      const oldElement = array.splice(oldIndex, 1)[0];
+      if (oldIndex > newIndex) {
+        newElement.value += '_' + oldElement.value;
+      } else {
+        newElement.value = oldElement.value + '_' + newElement.value;
+      }
+      this.setState({
+        items: array,
+        isSorting: false
+      });
+    } else {
+      this.setState({
+        items: arrayMove(items, oldIndex, newIndex),
+        isSorting: false
+      });
+    }
 
     if (onSortEnd) {
       onSortEnd(this.refs.component);
@@ -334,7 +352,7 @@ storiesOf('Basic Configuration', module)
       <div className={style.root}>
         <ListWrapper
           component={SortableList}
-          items={getItems(50, 59)}
+          items={getItems(10, 59)}
           helperClass={style.stylizedHelper}
         />
       </div>

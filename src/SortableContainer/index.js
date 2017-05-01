@@ -242,6 +242,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         } = this.props;
         const {node, collection} = active;
         const {index} = node.sortableInfo;
+        console.log(JSON.stringify(node.sortableInfo.indexes));
         const margin = getElementMargin(node);
 
         const containerBoundingRect = this.container.getBoundingClientRect();
@@ -415,6 +416,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
           {
             oldIndex: this.index,
             newIndex: this.newIndex,
+            majorOverlap: this.majorOverlap,
             collection,
           },
           e
@@ -610,7 +612,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             `${vendorPrefix}TransitionDuration`
           ] = `${transitionDuration}ms`;
         }
-
+        // console.log(this.axis)
         if (this.axis.x) {
           if (this.axis.y) {
             // Calculations for a grid setup
@@ -680,18 +682,32 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
           }
         } else if (this.axis.y) {
           if (
-            index > this.index &&
-            sortingOffset.top + offset.height >= edgeOffset.top
+            index > this.index
           ) {
-            translate.y = -(this.height + this.marginOffset.y);
-            this.newIndex = index;
-          } else if (
-            index < this.index &&
-            sortingOffset.top <= edgeOffset.top + offset.height
-          ) {
-            translate.y = this.height + this.marginOffset.y;
-            if (this.newIndex == null) {
+            if (sortingOffset.top + offset.height*2/4 >= edgeOffset.top) {
+              translate.y = -(this.height + this.marginOffset.y);
               this.newIndex = index;
+              this.majorOverlap = false;
+              console.log("Overlapping downwards > 75%");
+            } else if (sortingOffset.top + offset.height*2*3/4 >= edgeOffset.top
+              && sortingOffset.top + offset.height*2/4 < edgeOffset.top) {
+              console.log("Overlapping downwards 25-75%...Merge components without swapping indexes.." + index);
+              this.newIndex = index;
+              this.majorOverlap = true;
+            }
+          } else if (index < this.index) {
+            if (sortingOffset.top <= edgeOffset.top + offset.height*2/4) {
+              console.log("Overlapping upwards > 75%");
+              this.majorOverlap = false;
+              translate.y = this.height + this.marginOffset.y;
+              if (this.newIndex == null) {
+                this.newIndex = index;
+              }
+            } else if(sortingOffset.top >= edgeOffset.top + offset.height*2/4
+              && sortingOffset.top <= edgeOffset.top + offset.height*2*3/4) {
+              console.log("Overlapping upwards 25-75%...Merge components without swapping indexes.." + index);
+                this.newIndex = index;
+                this.majorOverlap = true;
             }
           }
         }
