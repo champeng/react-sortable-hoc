@@ -665,18 +665,34 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             }
           } else {
             if (
-              index > this.index &&
-              sortingOffset.left + offset.width >= edgeOffset.left
+              index > this.index
             ) {
-              translate.x = -(this.width + this.marginOffset.x);
-              this.newIndex = index;
-            } else if (
-              index < this.index &&
-              sortingOffset.left <= edgeOffset.left + offset.width
-            ) {
-              translate.x = this.width + this.marginOffset.x;
-              if (this.newIndex == null) {
+              if (sortingOffset.left + offset.width*2/4 >= edgeOffset.left) {
+                translate.x = -(this.width + this.marginOffset.x);
                 this.newIndex = index;
+                this.majorOverlap = false;
+                console.log("Overlapping rightwards > 75%");
+              } else if (sortingOffset.left + offset.width*2*3/4 >= edgeOffset.left
+                && sortingOffset.left + offset.width*2/4 < edgeOffset.left) {
+                console.log("Overlapping leftwards 25-75%...Merge components without swapping indexes.." + index);
+                this.newIndex = index;
+                this.majorOverlap = true;
+              }
+            } else if (
+              index < this.index
+            ) {
+              if (sortingOffset.left <= edgeOffset.left + offset.width*2/4) {
+                console.log("Overlapping upwards > 75%");
+                this.majorOverlap = false;
+                translate.x = this.width + this.marginOffset.x;
+                if (this.newIndex == null) {
+                  this.newIndex = index;
+                }
+              } else if(sortingOffset.left >= edgeOffset.left + offset.width*2/4
+                && sortingOffset.left <= edgeOffset.left + offset.width*2*3/4) {
+                console.log("Overlapping upwards 25-75%...Merge components without swapping indexes.." + index);
+                  this.newIndex = index;
+                  this.majorOverlap = true;
               }
             }
           }
