@@ -242,7 +242,6 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         } = this.props;
         const {node, collection} = active;
         const {index} = node.sortableInfo;
-        console.log(JSON.stringify(node.sortableInfo.indexes));
         const margin = getElementMargin(node);
 
         const containerBoundingRect = this.container.getBoundingClientRect();
@@ -612,56 +611,83 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             `${vendorPrefix}TransitionDuration`
           ] = `${transitionDuration}ms`;
         }
-        // console.log(this.axis)
         if (this.axis.x) {
           if (this.axis.y) {
-            // Calculations for a grid setup
+            // Calculations for a grid setup    
+            const x_overlap = Math.max(0, Math.min(edgeOffset.left + width, sortingOffset.left + this.width)
+             - Math.max(edgeOffset.left, sortingOffset.left));
+            const y_overlap = Math.max(0, Math.min(edgeOffset.top + height, sortingOffset.top + this.height)
+             - Math.max(edgeOffset.top , sortingOffset.top));
+            const overlapArea = x_overlap * y_overlap;
             if (
-              index < this.index &&
-              (
-                (sortingOffset.left - offset.width <= edgeOffset.left &&
-                sortingOffset.top <= edgeOffset.top + offset.height) ||
-                sortingOffset.top + offset.height <= edgeOffset.top
-              )
+              index < this.index
             ) {
               // If the current node is to the left on the same row, or above the node that's being dragged
               // then move it to the right
-              translate.x = this.width + this.marginOffset.x;
-              if (
-                edgeOffset.left + translate.x >
-                this.containerBoundingRect.width - offset.width
-              ) {
-                // If it moves passed the right bounds, then animate it to the first position of the next row.
-                // We just use the offset of the next node to calculate where to move, because that node's original position
-                // is exactly where we want to go
-                translate.x = nextNode.edgeOffset.left - edgeOffset.left;
-                translate.y = nextNode.edgeOffset.top - edgeOffset.top;
+              if ((sortingOffset.left <= edgeOffset.left + offset.width*2*1/4 &&
+                sortingOffset.top <= edgeOffset.top + offset.height*2*1/4) ||
+                sortingOffset.top + offset.height*2*3/4 <= edgeOffset.top) {
+                console.log("Overlapping grid left < 20%");
+                this.majorOverlap = false;
+                // If the current node is to the left on the same row, or above the node that's being dragged
+                // then move it to the right
+                translate.x = this.width + this.marginOffset.x;
+                if (
+                  edgeOffset.left + translate.x >
+                  this.containerBoundingRect.width - offset.width
+                ) {
+                  // If it moves passed the right bounds, then animate it to the first position of the next row.
+                  // We just use the offset of the next node to calculate where to move, because that node's original position
+                  // is exactly where we want to go
+                  translate.x = nextNode.edgeOffset.left - edgeOffset.left;
+                  translate.y = nextNode.edgeOffset.top - edgeOffset.top;
+                }
+                if (this.newIndex === null) {
+                  this.newIndex = index;
+                }
+              } else {
+                if (overlapArea > this.width * this.height*.6) {
+                  console.log("Overlapping grid left > 80%...Merge components without swapping indexes.." + index);
+                  // if (this.newIndex === null) {
+                    this.newIndex = index;
+                  // }
+                  this.majorOverlap = true;
+                }
               }
-              if (this.newIndex === null) {
-                this.newIndex = index;
-              }
+              
             } else if (
-              index > this.index &&
-              (
-                (sortingOffset.left + offset.width >= edgeOffset.left &&
-                sortingOffset.top + offset.height >= edgeOffset.top) ||
-                sortingOffset.top + offset.height >= edgeOffset.top + height
-              )
+              index > this.index
             ) {
               // If the current node is to the right on the same row, or below the node that's being dragged
               // then move it to the left
-              translate.x = -(this.width + this.marginOffset.x);
-              if (
-                edgeOffset.left + translate.x <
-                this.containerBoundingRect.left + offset.width
-              ) {
-                // If it moves passed the left bounds, then animate it to the last position of the previous row.
-                // We just use the offset of the previous node to calculate where to move, because that node's original position
-                // is exactly where we want to go
-                translate.x = prevNode.edgeOffset.left - edgeOffset.left;
-                translate.y = prevNode.edgeOffset.top - edgeOffset.top;
+              if ((sortingOffset.left + offset.width*2*1/4 >= edgeOffset.left &&
+                sortingOffset.top + offset.height*2*1/4 >= edgeOffset.top) ||
+                sortingOffset.top + offset.height*2*3/4 >= edgeOffset.top + height*2*3/4) {
+                console.log("Overlapping grid right < 20%");
+                this.majorOverlap = false;
+                translate.x = -(this.width + this.marginOffset.x);
+                if (
+                  edgeOffset.left + translate.x <
+                  this.containerBoundingRect.left + offset.width
+                ) {
+                  // If it moves passed the left bounds, then animate it to the last position of the previous row.
+                  // We just use the offset of the previous node to calculate where to move, because that node's original position
+                  // is exactly where we want to go
+                  translate.x = prevNode.edgeOffset.left - edgeOffset.left;
+                  translate.y = prevNode.edgeOffset.top - edgeOffset.top;
+                }
+                // if (this.newIndex === null) {
+                  this.newIndex = index;
+                // }
+              } else {
+                if (overlapArea > this.width * this.height*.6) {
+                  console.log("Overlapping grid right > 80%...Merge components without swapping indexes.." + index);
+                  if(this.newIndex === null) {
+                    this.newIndex = index;
+                  }
+                  this.majorOverlap = true;
+                }
               }
-              this.newIndex = index;
             }
           } else {
             if (
@@ -674,7 +700,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 console.log("Overlapping rightwards > 75%");
               } else if (sortingOffset.left + offset.width*2*3/4 >= edgeOffset.left
                 && sortingOffset.left + offset.width*2/4 < edgeOffset.left) {
-                console.log("Overlapping leftwards 25-75%...Merge components without swapping indexes.." + index);
+                console.log("Overlapping rightwards 25-75%...Merge components without swapping indexes.." + index);
                 this.newIndex = index;
                 this.majorOverlap = true;
               }
@@ -682,7 +708,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               index < this.index
             ) {
               if (sortingOffset.left <= edgeOffset.left + offset.width*2/4) {
-                console.log("Overlapping upwards > 75%");
+                console.log("Overlapping leftwards > 75%");
                 this.majorOverlap = false;
                 translate.x = this.width + this.marginOffset.x;
                 if (this.newIndex == null) {
@@ -690,7 +716,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 }
               } else if(sortingOffset.left >= edgeOffset.left + offset.width*2/4
                 && sortingOffset.left <= edgeOffset.left + offset.width*2*3/4) {
-                console.log("Overlapping upwards 25-75%...Merge components without swapping indexes.." + index);
+                  console.log("Overlapping leftwards 25-75%...Merge components without swapping indexes.." + index);
                   this.newIndex = index;
                   this.majorOverlap = true;
               }
@@ -721,7 +747,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               }
             } else if(sortingOffset.top >= edgeOffset.top + offset.height*2/4
               && sortingOffset.top <= edgeOffset.top + offset.height*2*3/4) {
-              console.log("Overlapping upwards 25-75%...Merge components without swapping indexes.." + index);
+                console.log("Overlapping upwards 25-75%...Merge components without swapping indexes.." + index);
                 this.newIndex = index;
                 this.majorOverlap = true;
             }
