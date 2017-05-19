@@ -655,7 +655,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                   this.majorOverlap = true;
                   node.style['border'] = '1px solid';
                 } else {
-                  this.majorOverlap = false;
+                  // this.majorOverlap = false;
                   node.style['border'] = 'none';
                 }
               }
@@ -694,7 +694,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                   this.majorOverlap = true;
                   node.style['border'] = '1px solid';
                 } else {
-                  this.majorOverlap = false;
+                  console.log('assuming initial position')
+                  // this.majorOverlap = false;
                   node.style['border'] = 'none';
                 }
               }

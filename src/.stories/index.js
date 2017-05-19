@@ -126,7 +126,7 @@ class ListWrapper extends Component {
     console.log('oldIndex: ' + oldIndex)
     console.log('newIndex: ' + newIndex)
     console.log('majorOverlap: ' + majorOverlap)
-    if (majorOverlap) {
+    if (majorOverlap && oldIndex !== newIndex) {
       const array = items.slice(0);
       let newElement = array[newIndex];
       const oldElement = array.splice(oldIndex, 1)[0];
