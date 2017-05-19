@@ -549,7 +549,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     }
 
     animateNodes() {
-      const {transitionDuration, hideSortableGhost} = this.props;
+      const {transitionDuration, hideSortableGhost, swapThreshold} = this.props;
       const nodes = this.manager.getOrderedRefs();
       const deltaScroll = {
         left: this.scrollContainer.scrollLeft - this.initialScroll.left,
@@ -624,9 +624,9 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             ) {
               // If the current node is to the left on the same row, or above the node that's being dragged
               // then move it to the right
-              if ((sortingOffset.left <= edgeOffset.left + offset.width*2*1/4 &&
-                sortingOffset.top <= edgeOffset.top + offset.height*2*1/4) ||
-                sortingOffset.top + offset.height*2*3/4 <= edgeOffset.top) {
+              if ((sortingOffset.left <= edgeOffset.left + offset.width*2*(1-swapThreshold) &&
+                sortingOffset.top <= edgeOffset.top + offset.height*2*(1-swapThreshold)) ||
+                sortingOffset.top + offset.height*2*(swapThreshold) <= edgeOffset.top) {
                 console.log("Overlapping grid left < 20%");
                 this.majorOverlap = false;
                 // If the current node is to the left on the same row, or above the node that's being dragged
@@ -642,16 +642,21 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                   translate.x = nextNode.edgeOffset.left - edgeOffset.left;
                   translate.y = nextNode.edgeOffset.top - edgeOffset.top;
                 }
-                if (this.newIndex === null) {
+                // if (this.newIndex === null) {
                   this.newIndex = index;
-                }
+                // }
+                node.style['border'] = 'none';
               } else {
-                if (overlapArea > this.width * this.height*.6) {
+                if (overlapArea > this.width * this.height*.8) {
                   console.log("Overlapping grid left > 80%...Merge components without swapping indexes.." + index);
                   // if (this.newIndex === null) {
                     this.newIndex = index;
                   // }
                   this.majorOverlap = true;
+                  node.style['border'] = '1px solid';
+                } else {
+                  this.majorOverlap = false;
+                  node.style['border'] = 'none';
                 }
               }
               
@@ -660,9 +665,9 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             ) {
               // If the current node is to the right on the same row, or below the node that's being dragged
               // then move it to the left
-              if ((sortingOffset.left + offset.width*2*1/4 >= edgeOffset.left &&
-                sortingOffset.top + offset.height*2*1/4 >= edgeOffset.top) ||
-                sortingOffset.top + offset.height*2*3/4 >= edgeOffset.top + height*2*3/4) {
+              if ((sortingOffset.left + offset.width*2*(1-swapThreshold) >= edgeOffset.left &&
+                sortingOffset.top + offset.height*2*(1-swapThreshold) >= edgeOffset.top) ||
+                sortingOffset.top + offset.height*2*(swapThreshold) >= edgeOffset.top + height*2*3/4) {
                 console.log("Overlapping grid right < 20%");
                 this.majorOverlap = false;
                 translate.x = -(this.width + this.marginOffset.x);
@@ -679,13 +684,18 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 // if (this.newIndex === null) {
                   this.newIndex = index;
                 // }
+                node.style['border'] = 'none';
               } else {
-                if (overlapArea > this.width * this.height*.6) {
+                if (overlapArea > this.width * this.height*.8) {
                   console.log("Overlapping grid right > 80%...Merge components without swapping indexes.." + index);
-                  if(this.newIndex === null) {
+                  // if(this.newIndex === null) {
                     this.newIndex = index;
-                  }
+                  // }
                   this.majorOverlap = true;
+                  node.style['border'] = '1px solid';
+                } else {
+                  this.majorOverlap = false;
+                  node.style['border'] = 'none';
                 }
               }
             }
@@ -693,12 +703,12 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             if (
               index > this.index
             ) {
-              if (sortingOffset.left + offset.width*2/4 >= edgeOffset.left) {
+              if (sortingOffset.left + offset.width*2*(swapThreshold) >= edgeOffset.left) {
                 translate.x = -(this.width + this.marginOffset.x);
                 this.newIndex = index;
                 this.majorOverlap = false;
                 console.log("Overlapping rightwards > 75%");
-              } else if (sortingOffset.left + offset.width*2*3/4 >= edgeOffset.left
+              } else if (sortingOffset.left + offset.width*2*(1 - swapThreshold) >= edgeOffset.left
                 && sortingOffset.left + offset.width*2/4 < edgeOffset.left) {
                 console.log("Overlapping rightwards 25-75%...Merge components without swapping indexes.." + index);
                 this.newIndex = index;
@@ -707,15 +717,15 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             } else if (
               index < this.index
             ) {
-              if (sortingOffset.left <= edgeOffset.left + offset.width*2/4) {
+              if (sortingOffset.left <= edgeOffset.left + offset.width*2*(swapThreshold)) {
                 console.log("Overlapping leftwards > 75%");
                 this.majorOverlap = false;
                 translate.x = this.width + this.marginOffset.x;
                 if (this.newIndex == null) {
                   this.newIndex = index;
                 }
-              } else if(sortingOffset.left >= edgeOffset.left + offset.width*2/4
-                && sortingOffset.left <= edgeOffset.left + offset.width*2*3/4) {
+              } else if(sortingOffset.left >= edgeOffset.left + offset.width*2*(swapThreshold)
+                && sortingOffset.left <= edgeOffset.left + offset.width*2*(1 - swapThreshold)) {
                   console.log("Overlapping leftwards 25-75%...Merge components without swapping indexes.." + index);
                   this.newIndex = index;
                   this.majorOverlap = true;
@@ -726,27 +736,27 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
           if (
             index > this.index
           ) {
-            if (sortingOffset.top + offset.height*2/4 >= edgeOffset.top) {
+            if (sortingOffset.top + offset.height*2*(swapThreshold) >= edgeOffset.top) {
               translate.y = -(this.height + this.marginOffset.y);
               this.newIndex = index;
               this.majorOverlap = false;
               console.log("Overlapping downwards > 75%");
-            } else if (sortingOffset.top + offset.height*2*3/4 >= edgeOffset.top
-              && sortingOffset.top + offset.height*2/4 < edgeOffset.top) {
+            } else if (sortingOffset.top + offset.height*2*(1 - swapThreshold) >= edgeOffset.top
+              && sortingOffset.top + offset.height*2*(swapThreshold) < edgeOffset.top) {
               console.log("Overlapping downwards 25-75%...Merge components without swapping indexes.." + index);
               this.newIndex = index;
               this.majorOverlap = true;
             }
           } else if (index < this.index) {
-            if (sortingOffset.top <= edgeOffset.top + offset.height*2/4) {
+            if (sortingOffset.top <= edgeOffset.top + offset.height*2*(swapThreshold)) {
               console.log("Overlapping upwards > 75%");
               this.majorOverlap = false;
               translate.y = this.height + this.marginOffset.y;
               if (this.newIndex == null) {
                 this.newIndex = index;
               }
-            } else if(sortingOffset.top >= edgeOffset.top + offset.height*2/4
-              && sortingOffset.top <= edgeOffset.top + offset.height*2*3/4) {
+            } else if(sortingOffset.top >= edgeOffset.top + offset.height*2*(swapThreshold)
+              && sortingOffset.top <= edgeOffset.top + offset.height*2*(1 - swapThreshold)) {
                 console.log("Overlapping upwards 25-75%...Merge components without swapping indexes.." + index);
                 this.newIndex = index;
                 this.majorOverlap = true;

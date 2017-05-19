@@ -51,6 +51,7 @@ const SortableList = SortableContainer(({
   items,
   itemClass,
   shouldUseDragHandle,
+  swapThreshold
 }) => {
   return (
     <div className={className}>
@@ -122,7 +123,9 @@ class ListWrapper extends Component {
   onSortEnd = ({oldIndex, newIndex, majorOverlap}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
-
+    console.log('oldIndex: ' + oldIndex)
+    console.log('newIndex: ' + newIndex)
+    console.log('majorOverlap: ' + majorOverlap)
     if (majorOverlap) {
       const array = items.slice(0);
       let newElement = array[newIndex];
@@ -418,6 +421,22 @@ storiesOf('Basic Configuration', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
+          swapThreshold={ 0.25 }
+        />
+      </div>
+    );
+  })
+  .add('Grid(100)', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'xy'}
+          items={getItems(10, 110)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.grid)}
+          itemClass={classNames(style.stylizedItem, style.gridItem)}
+          swapThreshold={ 0.90 }
         />
       </div>
     );
