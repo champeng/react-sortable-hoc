@@ -51,7 +51,8 @@ const SortableList = SortableContainer(({
   items,
   itemClass,
   shouldUseDragHandle,
-  swapThreshold
+  swapThreshold,
+  majorOverlapClass
 }) => {
   return (
     <div className={className}>
@@ -407,6 +408,22 @@ storiesOf('Basic Configuration', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.horizontalList)}
           itemClass={classNames(style.stylizedItem, style.horizontalItem)}
+          majorOverlapClass={ style.majorOverlap }
+        />
+      </div>
+    );
+  })
+  .add('Vertical', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'y'}
+          items={getItems(10, 100)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.verticalList)}
+          itemClass={classNames(style.stylizedItem, style.verticalItem)}
+          majorOverlapClass={ style.majorOverlap }
         />
       </div>
     );
@@ -422,6 +439,7 @@ storiesOf('Basic Configuration', module)
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
           swapThreshold={ 0.25 }
+          majorOverlapClass={ style.majorOverlap }
         />
       </div>
     );
@@ -437,6 +455,7 @@ storiesOf('Basic Configuration', module)
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
           swapThreshold={ 0.90 }
+          majorOverlapClass={ style.majorOverlap }
         />
       </div>
     );
