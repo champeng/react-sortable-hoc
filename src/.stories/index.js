@@ -52,7 +52,9 @@ const SortableList = SortableContainer(({
   itemClass,
   shouldUseDragHandle,
   swapThreshold,
-  majorOverlapClass
+  mergeThreshold,
+  allowMerge,
+  mergeClass
 }) => {
   return (
     <div className={className}>
@@ -121,13 +123,13 @@ class ListWrapper extends Component {
       onSortStart(this.refs.component);
     }
   };
-  onSortEnd = ({oldIndex, newIndex, majorOverlap}) => {
+  onSortEnd = ({oldIndex, newIndex, merge}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
     console.log('oldIndex: ' + oldIndex)
     console.log('newIndex: ' + newIndex)
-    console.log('majorOverlap: ' + majorOverlap)
-    if (majorOverlap && oldIndex !== newIndex) {
+    console.log('merge: ' + merge)
+    if (merge && oldIndex !== newIndex) {
       const array = items.slice(0);
       let newElement = array[newIndex];
       const oldElement = array.splice(oldIndex, 1)[0];
@@ -408,7 +410,6 @@ storiesOf('Basic Configuration', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.horizontalList)}
           itemClass={classNames(style.stylizedItem, style.horizontalItem)}
-          majorOverlapClass={ style.majorOverlap }
         />
       </div>
     );
@@ -423,7 +424,6 @@ storiesOf('Basic Configuration', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.verticalList)}
           itemClass={classNames(style.stylizedItem, style.verticalItem)}
-          majorOverlapClass={ style.majorOverlap }
         />
       </div>
     );
@@ -438,8 +438,57 @@ storiesOf('Basic Configuration', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
-          swapThreshold={ 0.25 }
-          majorOverlapClass={ style.majorOverlap }
+        />
+      </div>
+    );
+  })
+  
+  .add('Nested Lists', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={NestedSortableList}
+          items={range(4)}
+          shouldUseDragHandle={true}
+          helperClass={style.stylizedHelper}
+        />
+      </div>
+    );
+  });
+
+storiesOf('Mergeable elements', module)
+  .add('Horizontal', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'x'}
+          items={getItems(50, 300)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.horizontalList)}
+          itemClass={classNames(style.stylizedItem, style.horizontalItem)}
+          mergeClass={ style.mergeStyle }
+          swapThreshold={ 0.75 }
+          mergeThreshold={ 0.9 }
+          allowMerge={ true }
+        />
+      </div>
+    );
+  })
+  .add('Vertical', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'y'}
+          items={getItems(10, 100)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.verticalList)}
+          itemClass={classNames(style.stylizedItem, style.verticalItem)}
+          mergeClass={ style.mergeStyle }
+          mergeThreshold={ 0.9 }
+          swapThreshold={ 0.75 }
+          allowMerge={ true }
         />
       </div>
     );
@@ -454,24 +503,14 @@ storiesOf('Basic Configuration', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
-          swapThreshold={ 0.90 }
-          majorOverlapClass={ style.majorOverlap }
+          swapThreshold={ 0.95 }
+          mergeThreshold={ 0.85 }
+          allowMerge={ true }
+          mergeClass={ style.mergeStyle }
         />
       </div>
     );
   })
-  .add('Nested Lists', () => {
-    return (
-      <div className={style.root}>
-        <ListWrapper
-          component={NestedSortableList}
-          items={range(4)}
-          shouldUseDragHandle={true}
-          helperClass={style.stylizedHelper}
-        />
-      </div>
-    );
-  });
 
 storiesOf('Advanced', module)
   .add('Press delay (200ms)', () => {
