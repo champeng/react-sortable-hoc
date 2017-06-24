@@ -579,8 +579,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         const width = node.offsetWidth;
         const height = node.offsetHeight;
         const offset = {
-          width: this.width > width ? width / 2 : this.width / 2,
-          height: this.height > height ? height / 2 : this.height / 2,
+          width: this.width > width ? width : this.width,
+          height: this.height > height ? height : this.height,
         };
         const translate = {
           x: 0,
@@ -636,9 +636,9 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             ) {
               // If the current node is to the left on the same row, or above the node that's being dragged
               // then move it to the right
-              if ((sortingOffset.left <= edgeOffset.left + offset.width*2*(1-swapThreshold) &&
-                sortingOffset.top <= edgeOffset.top + offset.height*2*(1-swapThreshold)) ||
-                sortingOffset.top + offset.height*2*(swapThreshold) <= edgeOffset.top) {
+              if ((sortingOffset.left <= edgeOffset.left + offset.width*(1-swapThreshold) &&
+                sortingOffset.top <= edgeOffset.top + offset.height*(1-swapThreshold)) ||
+                sortingOffset.top + offset.height*(swapThreshold) <= edgeOffset.top) {
                 console.log("Overlapping grid left < 20%");
                 // if there is a major overlap, don't animate other nodes
                 if (this.merge) continue;
@@ -677,8 +677,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             ) {
               // If the current node is to the right on the same row, or below the node that's being dragged
               // then move it to the left
-              if ((sortingOffset.left + offset.width*2*(1-swapThreshold) >= edgeOffset.left &&
-                sortingOffset.top + offset.height*2*(1-swapThreshold) >= edgeOffset.top) ||
+              if ((sortingOffset.left + offset.width*(1-swapThreshold) >= edgeOffset.left &&
+                sortingOffset.top + offset.height*(1-swapThreshold) >= edgeOffset.top) ||
                 sortingOffset.top >= edgeOffset.top + height*swapThreshold) {
                 console.log("Overlapping grid right < 20%");
                 // if there is a major overlap, don't animate other nodes
@@ -713,7 +713,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             if (
               index > this.index
             ) {
-              if (sortingOffset.left + offset.width*2*(1 - swapThreshold) >= edgeOffset.left) {
+              if (sortingOffset.left + offset.width*(1 - swapThreshold) >= edgeOffset.left) {
                 console.log("Swapping rightwards > " + swapThreshold);
                 translate.x = -(this.width + this.marginOffset.x);
                 this.newIndex = index;
@@ -721,8 +721,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 node.classList.remove(mergeClass);
               } else if (
                 allowMerge &&
-                sortingOffset.left + offset.width*2*(swapThreshold) >= edgeOffset.left &&
-                sortingOffset.left + offset.width*2*(1 - swapThreshold) < edgeOffset.left) {
+                sortingOffset.left + offset.width*(swapThreshold) >= edgeOffset.left &&
+                sortingOffset.left + offset.width*(1 - swapThreshold) < edgeOffset.left) {
                 console.log("Overlapping rightwards ${1.0-swapThreshold} - ${swapThreshold}...Merge components without swapping indexes.." + index);
                 this.newIndex = index;
                 this.merge = true;
@@ -734,7 +734,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             } else if (
               index < this.index
             ) {
-              if (sortingOffset.left <= edgeOffset.left + offset.width*2*(1 - swapThreshold)) {
+              if (sortingOffset.left <= edgeOffset.left + offset.width*(1 - swapThreshold)) {
                 console.log("Swapping leftwards > " + swapThreshold);
                 translate.x = this.width + this.marginOffset.x;
                 if (this.newIndex == null) {
@@ -744,8 +744,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 }
               } else if(
                 allowMerge &&
-                sortingOffset.left >= edgeOffset.left + offset.width*2*(1 - swapThreshold) &&
-                sortingOffset.left <= edgeOffset.left + offset.width*2*(swapThreshold)) {
+                sortingOffset.left >= edgeOffset.left + offset.width*(1 - swapThreshold) &&
+                sortingOffset.left <= edgeOffset.left + offset.width*(swapThreshold)) {
                   console.log(`Overlapping leftwards ${1.0-swapThreshold} - ${swapThreshold}...Merge components without swapping indexes..` + index);
                   this.newIndex = index;
                   this.merge = true;
@@ -760,7 +760,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
           if (
             index > this.index
           ) {
-            if (sortingOffset.top + offset.height*2*(1 - swapThreshold) >= edgeOffset.top) {
+            if (sortingOffset.top + offset.height*(1 - swapThreshold) >= edgeOffset.top) {
               translate.y = -(this.height + this.marginOffset.y);
               this.newIndex = index;
               this.merge = false;
@@ -768,8 +768,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               console.log(`Swapping downwards > ${swapThreshold}`);
             } else if (
               allowMerge &&
-              sortingOffset.top + offset.height*2*(swapThreshold) >= edgeOffset.top && 
-              sortingOffset.top + offset.height*2*(1 - swapThreshold) < edgeOffset.top) {
+              sortingOffset.top + offset.height*(swapThreshold) >= edgeOffset.top && 
+              sortingOffset.top + offset.height*(1 - swapThreshold) < edgeOffset.top) {
               console.log(`Overlapping downwards ${1.0-swapThreshold} - ${swapThreshold}...Merge components without swapping indexes..` + index);
               this.newIndex = index;
               this.merge = true;
@@ -779,7 +779,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               node.classList.remove(mergeClass);
             }
           } else if (index < this.index) {
-            if (sortingOffset.top <= edgeOffset.top + offset.height*2*(1 - swapThreshold)) {
+            if (sortingOffset.top <= edgeOffset.top + offset.height*(1 - swapThreshold)) {
               console.log(`Swapping upwards > ${swapThreshold}%`);
               translate.y = this.height + this.marginOffset.y;
               if (this.newIndex == null) {
@@ -789,8 +789,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               }
             } else if(
               allowMerge &&
-              sortingOffset.top >= edgeOffset.top + offset.height*2*(1 - swapThreshold) &&
-              sortingOffset.top <= edgeOffset.top + offset.height*2*(swapThreshold)) {
+              sortingOffset.top >= edgeOffset.top + offset.height*(1 - swapThreshold) &&
+              sortingOffset.top <= edgeOffset.top + offset.height*(swapThreshold)) {
                 console.log(`Overlapping upwards ${1.0-swapThreshold} - ${swapThreshold}%...Merge components without swapping indexes..` + index);
                 this.newIndex = index;
                 this.merge = true;
@@ -803,7 +803,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         }
         node.style[`${vendorPrefix}Transform`] = `translate3d(${translate.x}px,${translate.y}px,0)`;
       }
-      console.log('closing move')
+      console.log('finishing move')
 
       if (this.newIndex == null) {
         this.newIndex = this.index;
