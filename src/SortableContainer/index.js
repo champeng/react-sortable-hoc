@@ -43,7 +43,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       pressThreshold: 5,
       swapThreshold: 0.5,
       mergeThreshold: 0.9,
-      allowMerge: false,
+      detectOverlap: false,
       distance: 0,
       useWindowAsScrollContainer: false,
       hideSortableGhost: true,
@@ -74,7 +74,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       onSortStart: PropTypes.func,
       onSortMove: PropTypes.func,
       onSortEnd: PropTypes.func,
-      allowMerge: PropTypes.bool,
+      detectOverlap: PropTypes.bool,
       swapThreshold: PropTypes.number,
       mergeThreshold: PropTypes.number,
       mergeClass: PropTypes.string,
@@ -557,7 +557,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
 
     animateNodes() {
       const {
-        transitionDuration, hideSortableGhost, swapThreshold, mergeClass, allowMerge,
+        transitionDuration, hideSortableGhost, swapThreshold, mergeClass, detectOverlap,
         mergeThreshold
       } = this.props;
       const nodes = this.manager.getOrderedRefs();
@@ -572,7 +572,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       this.newIndex = null;
       this.merge = false;
 
-      console.log('Starting move: allowMerge=' + allowMerge + ' mergeThreshold=' + mergeThreshold)
+      console.log('Starting move: detectOverlap=' + detectOverlap + ' mergeThreshold=' + mergeThreshold)
       for (let i = 0, len = nodes.length; i < len; i++) {
         const {node} = nodes[i];
         const index = node.sortableInfo.index;
@@ -661,7 +661,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 }
                 node.classList.remove(mergeClass);
               } else {
-                if (allowMerge && overlapArea > this.width * this.height*mergeThreshold) {
+                if (detectOverlap && overlapArea > this.width * this.height*mergeThreshold) {
                   console.log("Overlapping grid left > `${mergeThreshold}`%...Merge components without swapping indexes.." + index);
                   this.newIndex = index;
                   this.merge = true;
@@ -698,7 +698,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 this.merge = false;
                 node.classList.remove(mergeClass);
               } else {
-                if (allowMerge && overlapArea > this.width * this.height*mergeThreshold) {
+                if (detectOverlap && overlapArea > this.width * this.height*mergeThreshold) {
                   console.log("Overlapping grid right > `${mergeThreshold}`%...Merge components without swapping indexes.." + index);
                   this.newIndex = index;
                   this.merge = true;
@@ -720,7 +720,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 this.merge = false;
                 node.classList.remove(mergeClass);
               } else if (
-                allowMerge &&
+                detectOverlap &&
                 sortingOffset.left + offset.width*(swapThreshold) >= edgeOffset.left &&
                 sortingOffset.left + offset.width*(1 - swapThreshold) < edgeOffset.left) {
                 console.log("Overlapping rightwards ${1.0-swapThreshold} - ${swapThreshold}...Merge components without swapping indexes.." + index);
@@ -743,7 +743,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                   node.classList.remove(mergeClass);
                 }
               } else if(
-                allowMerge &&
+                detectOverlap &&
                 sortingOffset.left >= edgeOffset.left + offset.width*(1 - swapThreshold) &&
                 sortingOffset.left <= edgeOffset.left + offset.width*(swapThreshold)) {
                   console.log(`Overlapping leftwards ${1.0-swapThreshold} - ${swapThreshold}...Merge components without swapping indexes..` + index);
@@ -767,7 +767,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               node.classList.remove(mergeClass);
               console.log(`Swapping downwards > ${swapThreshold}`);
             } else if (
-              allowMerge &&
+              detectOverlap &&
               sortingOffset.top + offset.height*(swapThreshold) >= edgeOffset.top && 
               sortingOffset.top + offset.height*(1 - swapThreshold) < edgeOffset.top) {
               console.log(`Overlapping downwards ${1.0-swapThreshold} - ${swapThreshold}...Merge components without swapping indexes..` + index);
@@ -788,7 +788,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 node.classList.remove(mergeClass);
               }
             } else if(
-              allowMerge &&
+              detectOverlap &&
               sortingOffset.top >= edgeOffset.top + offset.height*(1 - swapThreshold) &&
               sortingOffset.top <= edgeOffset.top + offset.height*(swapThreshold)) {
                 console.log(`Overlapping upwards ${1.0-swapThreshold} - ${swapThreshold}%...Merge components without swapping indexes..` + index);

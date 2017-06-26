@@ -53,7 +53,7 @@ const SortableList = SortableContainer(({
   shouldUseDragHandle,
   swapThreshold,
   mergeThreshold,
-  allowMerge,
+  detectOverlap,
   mergeClass
 }) => {
   return (
@@ -470,7 +470,7 @@ storiesOf('Mergeable elements', module)
           mergeClass={ style.mergeStyle }
           swapThreshold={ 0.75 }
           mergeThreshold={ 0.9 }
-          allowMerge={ true }
+          detectOverlap={ true }
         />
       </div>
     );
@@ -488,7 +488,7 @@ storiesOf('Mergeable elements', module)
           mergeClass={ style.mergeStyle }
           mergeThreshold={ 0.9 }
           swapThreshold={ 0.75 }
-          allowMerge={ true }
+          detectOverlap={ true }
         />
       </div>
     );
@@ -505,7 +505,7 @@ storiesOf('Mergeable elements', module)
           itemClass={classNames(style.stylizedItem, style.gridItem)}
           swapThreshold={ 0.95 }
           mergeThreshold={ 0.85 }
-          allowMerge={ true }
+          detectOverlap={ true }
           mergeClass={ style.mergeStyle }
         />
       </div>
