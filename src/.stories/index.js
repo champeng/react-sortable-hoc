@@ -126,9 +126,6 @@ class ListWrapper extends Component {
   onSortEnd = ({oldIndex, newIndex, merge}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
-    console.log('oldIndex: ' + oldIndex)
-    console.log('newIndex: ' + newIndex)
-    console.log('merge: ' + merge)
     if (merge && oldIndex !== newIndex) {
       const array = items.slice(0);
       let newElement = array[newIndex];
