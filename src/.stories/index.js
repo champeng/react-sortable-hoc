@@ -51,6 +51,10 @@ const SortableList = SortableContainer(({
   items,
   itemClass,
   shouldUseDragHandle,
+  swapThreshold,
+  mergeThreshold,
+  detectOverlap,
+  mergeClass
 }) => {
   return (
     <div className={className}>
@@ -119,11 +123,28 @@ class ListWrapper extends Component {
       onSortStart(this.refs.component);
     }
   };
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({oldIndex, newIndex, merge}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
-
-    this.setState({items: arrayMove(items, oldIndex, newIndex), isSorting: false});
+    if (merge && oldIndex !== newIndex) {
+      const array = items.slice(0);
+      let newElement = array[newIndex];
+      const oldElement = array.splice(oldIndex, 1)[0];
+      if (oldIndex > newIndex) {
+        newElement.value += '_' + oldElement.value;
+      } else {
+        newElement.value = oldElement.value + '_' + newElement.value;
+      }
+      this.setState({
+        items: array,
+        isSorting: false
+      });
+    } else {
+      this.setState({
+        items: arrayMove(items, oldIndex, newIndex),
+        isSorting: false
+      });
+    }
 
     if (onSortEnd) {
       onSortEnd(this.refs.component);
@@ -334,7 +355,7 @@ storiesOf('Basic Configuration', module)
       <div className={style.root}>
         <ListWrapper
           component={SortableList}
-          items={getItems(50, 59)}
+          items={getItems(10, 59)}
           helperClass={style.stylizedHelper}
         />
       </div>
@@ -390,6 +411,20 @@ storiesOf('Basic Configuration', module)
       </div>
     );
   })
+  .add('Vertical', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'y'}
+          items={getItems(10, 100)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.verticalList)}
+          itemClass={classNames(style.stylizedItem, style.verticalItem)}
+        />
+      </div>
+    );
+  })
   .add('Grid', () => {
     return (
       <div className={style.root}>
@@ -404,6 +439,7 @@ storiesOf('Basic Configuration', module)
       </div>
     );
   })
+  
   .add('Nested Lists', () => {
     return (
       <div className={style.root}>
@@ -416,6 +452,62 @@ storiesOf('Basic Configuration', module)
       </div>
     );
   });
+
+storiesOf('Mergeable elements', module)
+  .add('Horizontal', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'x'}
+          items={getItems(50, 300)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.horizontalList)}
+          itemClass={classNames(style.stylizedItem, style.horizontalItem)}
+          mergeClass={ style.mergeStyle }
+          swapThreshold={ 0.75 }
+          mergeThreshold={ 0.9 }
+          detectOverlap={ true }
+        />
+      </div>
+    );
+  })
+  .add('Vertical', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'y'}
+          items={getItems(10, 100)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.verticalList)}
+          itemClass={classNames(style.stylizedItem, style.verticalItem)}
+          mergeClass={ style.mergeStyle }
+          mergeThreshold={ 0.9 }
+          swapThreshold={ 0.75 }
+          detectOverlap={ true }
+        />
+      </div>
+    );
+  })
+  .add('Grid(100)', () => {
+    return (
+      <div className={style.root}>
+        <ListWrapper
+          component={SortableList}
+          axis={'xy'}
+          items={getItems(10, 110)}
+          helperClass={style.stylizedHelper}
+          className={classNames(style.list, style.stylizedList, style.grid)}
+          itemClass={classNames(style.stylizedItem, style.gridItem)}
+          swapThreshold={ 0.95 }
+          mergeThreshold={ 0.85 }
+          detectOverlap={ true }
+          mergeClass={ style.mergeStyle }
+        />
+      </div>
+    );
+  })
 
 storiesOf('Advanced', module)
   .add('Press delay (200ms)', () => {
