@@ -42,7 +42,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       pressDelay: 0,
       pressThreshold: 5,
       swapThreshold: 0.5,
-      mergeThreshold: 0.9,
+      overlapThreshold: 0.9,
       detectOverlap: false,
       distance: 0,
       useWindowAsScrollContainer: false,
@@ -76,8 +76,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       onSortEnd: PropTypes.func,
       detectOverlap: PropTypes.bool,
       swapThreshold: PropTypes.number,
-      mergeThreshold: PropTypes.number,
-      mergeClass: PropTypes.string,
+      overlapThreshold: PropTypes.number,
+      overlapHelperClass: PropTypes.string,
       shouldCancelStart: PropTypes.func,
       pressDelay: PropTypes.number,
       useDragHandle: PropTypes.bool,
@@ -420,9 +420,9 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       if (typeof onSortEnd === 'function') {
         onSortEnd(
           {
-            oldIndex: this.index,
-            newIndex: this.newIndex,
-            merge: this.merge,
+            oldIndex        : this.index,
+            newIndex        : this.newIndex,
+            overlapDetected : this.overlapDetected,
             collection,
           },
           e
@@ -557,8 +557,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
 
     animateNodes() {
       const {
-        transitionDuration, hideSortableGhost, swapThreshold, mergeClass, detectOverlap,
-        mergeThreshold
+        transitionDuration, hideSortableGhost, swapThreshold, overlapHelperClass, detectOverlap,
+        overlapThreshold
       } = this.props;
       const nodes = this.manager.getOrderedRefs();
       const deltaScroll = {
@@ -570,7 +570,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         top: this.offsetEdge.top + this.translate.y + deltaScroll.top,
       };
       this.newIndex = null;
-      this.merge = false;
+      this.overlapDetected = false;
 
       for (let i = 0, len = nodes.length; i < len; i++) {
         const {node} = nodes[i];
@@ -640,7 +640,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 sortingOffset.top + offset.height*(swapThreshold) <= edgeOffset.top) {
                 // Swapping grid left < (1 - swapThreshold)
                 // if there is a major overlap, don't animate other nodes
-                if (this.merge) continue;
+                if (this.overlapDetected) continue;
                 // If the current node is to the left on the same row, or above the node that's being dragged
                 // then move it to the right
                 translate.x = this.width + this.marginOffset.x;
@@ -656,18 +656,18 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 }
                 if (this.newIndex === null) {
                   this.newIndex = index;
-                  this.merge = false;
+                  this.overlapDetected = false;
                 }
-                node.classList.remove(mergeClass);
+                node.classList.remove(overlapHelperClass);
               } else {
-                if (detectOverlap && overlapArea > this.width * this.height*mergeThreshold) {
-                  // Overlapping grid left > mergeThreshold %...Merge components without swapping indexes
+                if (detectOverlap && overlapArea > this.width * this.height*overlapThreshold) {
+                  // Overlapping grid left > overlapThreshold %...Merge components without swapping indexes
                   this.newIndex = index;
-                  this.merge = true;
-                  node.classList.add(mergeClass);
+                  this.overlapDetected = true;
+                  node.classList.add(overlapHelperClass);
                 } else {
                   // node['+index+'] assuming previous position
-                  node.classList.remove(mergeClass);
+                  node.classList.remove(overlapHelperClass);
                 }
               }
               
@@ -681,7 +681,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 sortingOffset.top >= edgeOffset.top + height*swapThreshold) {
                 // Overlapping grid right < (1 - swapThreshold)
                 // if there is a major overlap, don't animate other nodes
-                if (this.merge) continue;
+                if (this.overlapDetected) continue;
                 translate.x = -(this.width + this.marginOffset.x);
                 if (
                   edgeOffset.left + translate.x <
@@ -694,17 +694,17 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                   translate.y = prevNode.edgeOffset.top - edgeOffset.top;
                 }
                 this.newIndex = index;
-                this.merge = false;
-                node.classList.remove(mergeClass);
+                this.overlapDetected = false;
+                node.classList.remove(overlapHelperClass);
               } else {
-                if (detectOverlap && overlapArea > this.width * this.height*mergeThreshold) {
-                  // Overlapping grid right > mergeThreshold%...Merge components without swapping indexes
+                if (detectOverlap && overlapArea > this.width * this.height*overlapThreshold) {
+                  // Overlapping grid right > overlapThreshold%...Merge components without swapping indexes
                   this.newIndex = index;
-                  this.merge = true;
-                  node.classList.add(mergeClass);
+                  this.overlapDetected = true;
+                  node.classList.add(overlapHelperClass);
                 } else {
                   // node['+index+'] assuming previous position
-                  node.classList.remove(mergeClass);
+                  node.classList.remove(overlapHelperClass);
                 }
               }
             }
@@ -716,19 +716,19 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 // Swapping rightwards > swapThreshold
                 translate.x = -(this.width + this.marginOffset.x);
                 this.newIndex = index;
-                this.merge = false;
-                node.classList.remove(mergeClass);
+                this.overlapDetected = false;
+                node.classList.remove(overlapHelperClass);
               } else if (
                 detectOverlap &&
                 sortingOffset.left + offset.width*(swapThreshold) >= edgeOffset.left &&
                 sortingOffset.left + offset.width*(1 - swapThreshold) < edgeOffset.left) {
                 // Overlapping rightwards (1.0-swapThreshold) - swapThreshold...Merge components without swapping indexes
                 this.newIndex = index;
-                this.merge = true;
-                node.classList.add(mergeClass);
+                this.overlapDetected = true;
+                node.classList.add(overlapHelperClass);
               } else {
                 // node['+index+'] assuming previous position
-                node.classList.remove(mergeClass);
+                node.classList.remove(overlapHelperClass);
               }
             } else if (
               index < this.index
@@ -738,8 +738,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 translate.x = this.width + this.marginOffset.x;
                 if (this.newIndex == null) {
                   this.newIndex = index;
-                  this.merge = false;
-                  node.classList.remove(mergeClass);
+                  this.overlapDetected = false;
+                  node.classList.remove(overlapHelperClass);
                 }
               } else if(
                 detectOverlap &&
@@ -747,11 +747,11 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 sortingOffset.left <= edgeOffset.left + offset.width*(swapThreshold)) {
                   // Overlapping leftwards (1.0-swapThreshold) - (swapThreshold)...Merge components without swapping indexes
                   this.newIndex = index;
-                  this.merge = true;
-                  node.classList.add(mergeClass);
+                  this.overlapDetected = true;
+                  node.classList.add(overlapHelperClass);
               } else {
                 // node['+index+'] assuming previous position
-                node.classList.remove(mergeClass);
+                node.classList.remove(overlapHelperClass);
               }
             }
           }
@@ -763,19 +763,19 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               // Swapping downwards > swapThreshold
               translate.y = -(this.height + this.marginOffset.y);
               this.newIndex = index;
-              this.merge = false;
-              node.classList.remove(mergeClass);
+              this.overlapDetected = false;
+              node.classList.remove(overlapHelperClass);
             } else if (
               detectOverlap &&
               sortingOffset.top + offset.height*(swapThreshold) >= edgeOffset.top && 
               sortingOffset.top + offset.height*(1 - swapThreshold) < edgeOffset.top) {
               // Overlapping downwards (1.0-swapThreshold) - swapThreshold...Merge components without swapping indexes..
               this.newIndex = index;
-              this.merge = true;
-              node.classList.add(mergeClass);
+              this.overlapDetected = true;
+              node.classList.add(overlapHelperClass);
             } else {
               // node['+index+'] assuming previous position
-              node.classList.remove(mergeClass);
+              node.classList.remove(overlapHelperClass);
             }
           } else if (index < this.index) {
             if (sortingOffset.top <= edgeOffset.top + offset.height*(1 - swapThreshold)) {
@@ -783,8 +783,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               translate.y = this.height + this.marginOffset.y;
               if (this.newIndex == null) {
                 this.newIndex = index;
-                this.merge = false;
-                node.classList.remove(mergeClass);
+                this.overlapDetected = false;
+                node.classList.remove(overlapHelperClass);
               }
             } else if(
               detectOverlap &&
@@ -792,11 +792,11 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               sortingOffset.top <= edgeOffset.top + offset.height*(swapThreshold)) {
                 // Overlapping upwards (1.0-swapThreshold) - swapThreshold%...Merge components without swapping indexes..` + index
                 this.newIndex = index;
-                this.merge = true;
-                node.classList.add(mergeClass);
+                this.overlapDetected = true;
+                node.classList.add(overlapHelperClass);
             } else {
               // node['+index+'] assuming previous position
-              node.classList.remove(mergeClass);
+              node.classList.remove(overlapHelperClass);
             }
           }
         }

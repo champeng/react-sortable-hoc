@@ -52,9 +52,9 @@ const SortableList = SortableContainer(({
   itemClass,
   shouldUseDragHandle,
   swapThreshold,
-  mergeThreshold,
+  overlapThreshold,
   detectOverlap,
-  mergeClass
+  overlapHelperClass
 }) => {
   return (
     <div className={className}>
@@ -123,10 +123,10 @@ class ListWrapper extends Component {
       onSortStart(this.refs.component);
     }
   };
-  onSortEnd = ({oldIndex, newIndex, merge}) => {
+  onSortEnd = ({oldIndex, newIndex, overlapDetected}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
-    if (merge && oldIndex !== newIndex) {
+    if (overlapDetected && oldIndex !== newIndex) {
       const array = items.slice(0);
       let newElement = array[newIndex];
       const oldElement = array.splice(oldIndex, 1)[0];
@@ -464,9 +464,9 @@ storiesOf('Mergeable elements', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.horizontalList)}
           itemClass={classNames(style.stylizedItem, style.horizontalItem)}
-          mergeClass={ style.mergeStyle }
+          overlapHelperClass={ style.mergeStyle }
           swapThreshold={ 0.75 }
-          mergeThreshold={ 0.9 }
+          overlapThreshold={ 0.9 }
           detectOverlap={ true }
         />
       </div>
@@ -482,8 +482,8 @@ storiesOf('Mergeable elements', module)
           helperClass={style.stylizedHelper}
           className={classNames(style.list, style.stylizedList, style.verticalList)}
           itemClass={classNames(style.stylizedItem, style.verticalItem)}
-          mergeClass={ style.mergeStyle }
-          mergeThreshold={ 0.9 }
+          overlapHelperClass={ style.mergeStyle }
+          overlapThreshold={ 0.9 }
           swapThreshold={ 0.75 }
           detectOverlap={ true }
         />
@@ -501,9 +501,9 @@ storiesOf('Mergeable elements', module)
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
           swapThreshold={ 0.95 }
-          mergeThreshold={ 0.85 }
+          overlapThreshold={ 0.85 }
           detectOverlap={ true }
-          mergeClass={ style.mergeStyle }
+          overlapHelperClass={ style.mergeStyle }
         />
       </div>
     );
