@@ -558,7 +558,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     animateNodes() {
       const {
         transitionDuration, hideSortableGhost, swapThreshold, overlapHelperClass, detectOverlap,
-        overlapThreshold
+        overlapThreshold,
       } = this.props;
       const nodes = this.manager.getOrderedRefs();
       const deltaScroll = {
@@ -745,10 +745,10 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
                 detectOverlap &&
                 sortingOffset.left >= edgeOffset.left + offset.width*(1 - swapThreshold) &&
                 sortingOffset.left <= edgeOffset.left + offset.width*(swapThreshold)) {
-                  // Overlapping leftwards (1.0-swapThreshold) - (swapThreshold)...Merge components without swapping indexes
-                  this.newIndex = index;
-                  this.overlapDetected = true;
-                  node.classList.add(overlapHelperClass);
+                // Overlapping leftwards (1.0-swapThreshold) - (swapThreshold)...Merge components without swapping indexes
+                this.newIndex = index;
+                this.overlapDetected = true;
+                node.classList.add(overlapHelperClass);
               } else {
                 // node['+index+'] assuming previous position
                 node.classList.remove(overlapHelperClass);
@@ -790,10 +790,10 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               detectOverlap &&
               sortingOffset.top >= edgeOffset.top + offset.height*(1 - swapThreshold) &&
               sortingOffset.top <= edgeOffset.top + offset.height*(swapThreshold)) {
-                // Overlapping upwards (1.0-swapThreshold) - swapThreshold%...Merge components without swapping indexes..` + index
-                this.newIndex = index;
-                this.overlapDetected = true;
-                node.classList.add(overlapHelperClass);
+              // Overlapping upwards (1.0-swapThreshold) - swapThreshold%...Merge components without swapping indexes..` + index
+              this.newIndex = index;
+              this.overlapDetected = true;
+              node.classList.add(overlapHelperClass);
             } else {
               // node['+index+'] assuming previous position
               node.classList.remove(overlapHelperClass);
