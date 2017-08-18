@@ -1,6 +1,6 @@
 {
   "name": "react-sortable-hoc",
-  "version": "0.6.2",
+  "version": "0.6.5",
   "description": "Set of higher-order components to turn any list into a sortable, touch-friendly, animated list",
   "author": {
     "name": "Clauderic Demers",
@@ -42,7 +42,7 @@
     "clean:umd": "rimraf dist/umd",
     "clean:es6": "rimraf dist/es6",
     "clean:commonjs": "rimraf dist/commonjs",
-    "storybook": "start-storybook -p 9001",
+    "storybook": "start-storybook -p 8082",
     "test": "eslint src/** --ext .js"
   },
   "dependencies": {

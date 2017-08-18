@@ -20,12 +20,19 @@ export default class Manager {
     }
   }
 
+  isActive() {
+    return this.active;
+  }
+
   getActive() {
+    if (!this.active) return null;
+    const activeRef = this.refs[this.active.collection];
+    if (!activeRef) return null;
     return find(
-      this.refs[this.active.collection],
+      activeRef,
       // eslint-disable-next-line eqeqeq
       ({node}) => node.sortableInfo.index == this.active.index
-    );
+    ) || activeRef.slice(-1).pop();
   }
 
   getIndex(collection, ref) {
