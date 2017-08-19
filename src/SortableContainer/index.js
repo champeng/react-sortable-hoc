@@ -414,6 +414,16 @@ export default function sortableContainer(
       }
     };
 
+    handleSortOverlap = (index, item) => {
+      const {onSortOverlap} = this.props;
+      if (typeof onSortOverlap === 'function') {
+        onSortOverlap({
+          index,
+          item,
+        });
+      }
+    }
+
     getEdgeOffset(node, offset = {top: 0, left: 0}) {
       // Get the actual offsetTop / offsetLeft value, no matter how deep the node is nested
       if (node) {
@@ -581,7 +591,6 @@ export default function sortableContainer(
         left: (window.scrollX - this.initialWindowScroll.left),
       };
 
-      this.newIndex = null;
       for (let i = 0, len = nodes.length; i < len; i++) {
         const {node} = nodes[i];
         const index = node.sortableInfo.index;
@@ -640,10 +649,10 @@ export default function sortableContainer(
         if (this.axis.x) {
           if (this.axis.y) {
             // Calculations for a grid setup 
-            const x_overlap = Math.max(0, Math.min(edgeOffset.left + width, sortingOffset.left + this.dragLayer.width)
-             - Math.max(edgeOffset.left, sortingOffset.left));
-            const y_overlap = Math.max(0, Math.min(edgeOffset.top + height, sortingOffset.top + this.dragLayer.height)
-             - Math.max(edgeOffset.top , sortingOffset.top));
+            const x_overlap = Math.max(0, Math.min(edgeOffset.left + width, (sortingOffset.left + scrollDifference.left) + this.dragLayer.width)
+             - Math.max(edgeOffset.left, (sortingOffset.left + scrollDifference.left)));
+            const y_overlap = Math.max(0, Math.min(edgeOffset.top + height, (sortingOffset.top + scrollDifference.top) + this.dragLayer.height)
+             - Math.max(edgeOffset.top , (sortingOffset.top + scrollDifference.top)));
             const overlapArea = x_overlap * y_overlap;
             if (
               index < this.index
@@ -677,6 +686,7 @@ export default function sortableContainer(
                 node.classList.remove(overlapHelperClass);
               } else {
                 if (detectOverlap && overlapArea > this.dragLayer.width * this.dragLayer.height * overlapThreshold) {
+                  // console.log(overlapArea + " : " + this.dragLayer.width * this.dragLayer.height)
                   // Overlapping grid left > overlapThreshold %...Merge components without swapping indexes
                   this.newIndex = index;
                   this.overlapDetected = true;
@@ -693,7 +703,7 @@ export default function sortableContainer(
               // then move it to the left
               if (((sortingOffset.left + scrollDifference.left) + offset.width * (1 - swapThreshold) >= edgeOffset.left &&
                 (sortingOffset.top + scrollDifference.top) + offset.height * (1 - swapThreshold) >= edgeOffset.top) ||
-                (sortingOffset.top + scrollDifference.top) >= edgeOffset.top + height*swapThreshold) {
+                (sortingOffset.top + scrollDifference.top) + offset.height * (1 - swapThreshold) >= edgeOffset.top + height*swapThreshold) {
                 // Overlapping grid right < (1 - swapThreshold)
                 // if there is a major overlap, don't animate other nodes
                 if (this.overlapDetected) continue;

@@ -134,21 +134,25 @@ class ListWrapper extends Component {
   onSortEnd = ({oldIndex, newIndex, overlapDetected, newList}) => {
     const {onSortEnd} = this.props;
     const {items} = this.state;
-    if (overlapDetected && oldIndex !== newIndex) {
-      const array = items.slice(0);
-      let newElement = array[newIndex];
-      const oldElement = array.splice(oldIndex, 1)[0];
-      if (oldIndex > newIndex) {
-        newElement.value += '_' + oldElement.value;
+    if (overlapDetected) {// && oldIndex !== newIndex
+      if(newList) {
+        newList.handleSortOverlap(newIndex, {...items[oldIndex]});
       } else {
-        newElement.value = oldElement.value + '_' + newElement.value;
+        const array = items.slice(0);
+        let newElement = array[newIndex];
+        const oldElement = array.splice(oldIndex, 1)[0];
+        if (oldIndex > newIndex) {
+          newElement.value += '_' + oldElement.value;
+        } else {
+          newElement.value = oldElement.value + '_' + newElement.value;
+        }
+        this.setState({
+          items: array,
+          isSorting: false
+        });
       }
-      this.setState({
-        items: array,
-        isSorting: false
-      });
     } else {
-      if(newList){
+      if(newList) {
         newList.handleSortSwap(newIndex, {...items[oldIndex]});
         newIndex = -1;
       }
@@ -175,6 +179,17 @@ class ListWrapper extends Component {
       onSortSwap(this.refs.component);
     }
   };
+  onSortOverlap = ({index, item}) => {
+    const {items} = this.state;
+    const array = items.slice(0);
+    let newElement = array[index];
+    const oldElement = array.splice(oldIndex, 1)[0];
+    newElement.value = item.value + '_' + newElement.value;
+    this.setState({
+      items: arrayInsert(items, index, newElement),
+      isSorting: false
+    });
+  }
 
   updateTimeoutId = null;
 
@@ -647,6 +662,10 @@ storiesOf('Grouping', module)
           dragLayer={dragLayer}
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
+          swapThreshold={ 0.95 }
+          overlapThreshold={ 0.85 }
+          detectOverlap={ true }
+          overlapHelperClass={ style.mergeStyle }
         />
         <ListWrapper
           component={SortableList}
@@ -656,6 +675,10 @@ storiesOf('Grouping', module)
           dragLayer={dragLayer}
           className={classNames(style.list, style.stylizedList, style.grid)}
           itemClass={classNames(style.stylizedItem, style.gridItem)}
+          swapThreshold={ 0.95 }
+          overlapThreshold={ 0.85 }
+          detectOverlap={ true }
+          overlapHelperClass={ style.mergeStyle }
         />
       </div>
     );
