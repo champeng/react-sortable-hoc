@@ -658,10 +658,10 @@ export default function sortableContainer(
         if (this.axis.x) {
           if (this.axis.y) {
             // Calculations for a grid setup 
-            const x_overlap = Math.max(0, Math.min(edgeOffset.left + width, (sortingOffset.left + scrollDifference.left) + this.dragLayer.width)
-             - Math.max(edgeOffset.left, (sortingOffset.left + scrollDifference.left)));
-            const y_overlap = Math.max(0, Math.min(edgeOffset.top + height, (sortingOffset.top + scrollDifference.top) + this.dragLayer.height)
-             - Math.max(edgeOffset.top , (sortingOffset.top + scrollDifference.top)));
+            const x_overlap = Math.max(0, Math.min(edgeOffset.left + width, (sortingOffset.left) + this.dragLayer.width)
+             - Math.max(edgeOffset.left, (sortingOffset.left)));
+            const y_overlap = Math.max(0, Math.min(edgeOffset.top + height, (sortingOffset.top) + this.dragLayer.height)
+             - Math.max(edgeOffset.top , (sortingOffset.top)));
             const overlapArea = x_overlap * y_overlap;
             if (
               index < this.index
